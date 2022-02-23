@@ -1,6 +1,9 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:new_vision/others/helper.dart';
+import 'package:new_vision/no_internet_page.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,19 +21,36 @@ class _HomePageState extends State<HomePage> {
         useShouldOverrideUrlLoading: true,
         mediaPlaybackRequiresUserGesture: false,
       ),
-      android: AndroidInAppWebViewOptions(useHybridComposition: true,),
+      android: AndroidInAppWebViewOptions(useHybridComposition: true),
       ios: IOSInAppWebViewOptions(allowsInlineMediaPlayback: true));
 
   late PullToRefreshController pullToRefreshController;
   String url = "https://newvision.bindusoft.com/";
-  //String url = "https://www.youtube.com/";
   double progress = 0;
   String pageTitle = 'Loading...';
   bool reloading=false;
 
+  Future<void> _checkConnectivity()async{
+    bool _connected = await Helper().checkConnectivity();
+    if(!_connected){
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>
+      const NoInternetPage()), (route) => false);
+    }else{
+      Future.delayed(const Duration(seconds: 2)).then((value) => _checkConnectivity());
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    _checkConnectivity();
+    _initialize();
+  }
+
+  Future<void> _initialize()async{
+    if (kDebugMode) {
+      print('initialized');
+    }
 
     webViewController?.loadUrl(
         urlRequest: URLRequest(url: Uri.parse(url)));
@@ -41,17 +61,13 @@ class _HomePageState extends State<HomePage> {
         if (Platform.isAndroid) {
           webViewController?.reload();
         } else if (Platform.isIOS) {
-          webViewController?.loadUrl(
-              urlRequest: URLRequest(url: await webViewController?.getUrl()));
+          webViewController?.loadUrl(urlRequest: URLRequest(
+              url: await webViewController?.getUrl()));
         }
       },
     );
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,4 +175,5 @@ class _HomePageState extends State<HomePage> {
       ],
     ),
   );
+
 }
