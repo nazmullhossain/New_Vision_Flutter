@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
       ios: IOSInAppWebViewOptions(allowsInlineMediaPlayback: true));
 
   late PullToRefreshController pullToRefreshController;
-  String url = "https://newvision.bindusoft.com/";
+  String url = "https://sukhtaraintltd.com/";
   double progress = 0;
   String pageTitle = 'Loading...';
   bool reloading=false;
